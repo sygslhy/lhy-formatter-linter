@@ -1,12 +1,39 @@
-import subprocess
+import pathlib
 import re
-import os
+import subprocess
+
 from packaging import version
 
 
 def _get_exec_version(exec):
-    output = subprocess.check_output([exec, '--version']).decode('utf-8')
-    return (version.Version(re.search(r'([\d.]+)', output).group(1)))
+    check_cmd = [exec, '--version-number'
+                 ] if exec == 'isort' else [exec, '--version']
+    try:
+        output = subprocess.check_output(check_cmd).decode('utf-8')
+        version = re.search(r'(\d+(?:\.\d+)*)', output).group(0)
+        return version
+    except subprocess.CalledProcessError:
+        return None
+    except AttributeError:
+        return None
+
+def print_exec_info(exec, num_failed, failed_commands):
+    print('{} execution finished, {} failed'.format(exec, num_failed))
+    if num_failed > 0:
+        print('{} failed commands: {}'.format(exec, failed_commands))
+    print('--------------------------------------')
+
+
+def pasre_ignore_dirs(ignore_dirs, root_dir):
+    ign_dirs = []
+    for ign_dir in ignore_dirs:
+        abs_ign_dir = pathlib.Path(root_dir, ign_dir)
+        if abs_ign_dir.exists():
+            ign_dirs.append(abs_ign_dir)
+        else:
+            print('Warning: ignore dir {} is not valid.'.format(
+                str(abs_ign_dir)))
+    return ign_dirs
 
 
 def get_subfolders_recursive(path):
@@ -21,33 +48,35 @@ def get_subfolders_recursive(path):
     return subfolders
 
 
-def exec_on_files(exec,
+def exec_on_files(exec_args,
                   root_dir,
                   expressions,
                   ignore_dirs,
-                  exec_args,
+                  other_args,
                   verbose=False,
                   dry_run=False):
     """
-    Launch exec with given args on filtered files. Executable name is given as 1st argument
+    Launch exec with given args on filtered files.
+    Executable name is given as 1st argument
 
     Parameters
     ----------
-    exec: string
-        executable name.
+    exec_args: list of string
+        executable name and relative args.
     root_dir: string
-        root directory pathname from which the search has to be launched
+        root directory pathname from which the search has to be launched.
     expressions: list of strings
-        list of expressions defining the files on which executable has to be launched
+        list of expressions defining the files on which executable has
+        to be launched.
     ignore_dirs: list os strings
         list of directories in root_dir to exclude from search.
-    exec_args: list of strings
-        list of arguments to be passed to executable.
+    other_args: list of strings
+        list of other arguments to be passed to executable.
     """
+    exec = exec_args[0]
     version_num = _get_exec_version(exec)
     if verbose:
         print('{} --version: {}'.format(exec, version_num))
-        print('root_dir:', root_dir)
     num_failed = 0
     failed_commands = []
     all_folders = get_subfolders_recursive(root_dir)
@@ -60,19 +89,19 @@ def exec_on_files(exec,
     all_files = []
     for d in filtered_folders:
         for expr in expressions:
-            files = list(d.glob(expr))
+            files = list(map(str, d.glob(expr)))
             if files:
                 all_files += files
-                command_line = ' '.join(map(str, [exec] + exec_args + files))
+                command_line = ' '.join(
+                    map(str, exec_args + files + other_args))
                 if verbose:
                     print(command_line)
                 if dry_run:
                     print('dry-run: ' + command_line)
                 else:
-                    ret = subprocess.run([exec] + exec_args + files)
+                    ret = subprocess.run(exec_args + files + other_args)
                     if ret.returncode != 0:
                         num_failed += 1
-                        failed_commands.append(' '.join(
-                            map(str, [exec] + exec_args + files)))
+                        failed_commands.append(command_line)
 
     return num_failed, failed_commands
