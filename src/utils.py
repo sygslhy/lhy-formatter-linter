@@ -1,13 +1,13 @@
+import os
 import pathlib
 import re
 import subprocess
 
-from packaging import version
+DEFAULT_IGNORE_DIRS = ['.git', 'build', '.vscode', '.cache', '.pytest_cache']
 
 
 def _get_exec_version(exec):
-    check_cmd = [exec, '--version-number'
-                 ] if exec == 'isort' else [exec, '--version']
+    check_cmd = [exec, '--version']
     try:
         output = subprocess.check_output(check_cmd).decode('utf-8')
         version = re.search(r'(\d+(?:\.\d+)*)', output).group(0)
@@ -17,6 +17,7 @@ def _get_exec_version(exec):
     except AttributeError:
         return None
 
+
 def print_exec_info(exec, num_failed, failed_commands):
     print('{} execution finished, {} failed'.format(exec, num_failed))
     if num_failed > 0:
@@ -25,14 +26,17 @@ def print_exec_info(exec, num_failed, failed_commands):
 
 
 def pasre_ignore_dirs(ignore_dirs, root_dir):
-    ign_dirs = []
-    for ign_dir in ignore_dirs:
-        abs_ign_dir = pathlib.Path(root_dir, ign_dir)
-        if abs_ign_dir.exists():
-            ign_dirs.append(abs_ign_dir)
-        else:
-            print('Warning: ignore dir {} is not valid.'.format(
-                str(abs_ign_dir)))
+    ign_dirs = [
+        pathlib.Path(root_dir, ign_dir) for ign_dir in DEFAULT_IGNORE_DIRS
+    ]
+    if ignore_dirs:
+        for ign_dir in ignore_dirs:
+            abs_ign_dir = pathlib.Path(root_dir, ign_dir)
+            if abs_ign_dir.exists():
+                ign_dirs.append(abs_ign_dir)
+            else:
+                print('Warning: ignore dir {} is not valid.'.format(
+                    str(abs_ign_dir)))
     return ign_dirs
 
 
@@ -86,6 +90,11 @@ def exec_on_files(exec_args,
             folder.is_relative_to(ignore_dir) for ignore_dir in ignore_dirs)
     ]
     filtered_folders = list(set(filtered_folders))
+    current_dir = os.getcwd()
+    os.chdir(root_dir)
+    if verbose:
+        print('change work directory from {} to {}'.format(
+            current_dir, root_dir))
     all_files = []
     for d in filtered_folders:
         for expr in expressions:
@@ -104,4 +113,8 @@ def exec_on_files(exec_args,
                         num_failed += 1
                         failed_commands.append(command_line)
 
+    os.chdir(current_dir)
+    if verbose:
+        print('change work directory from {} to {}'.format(
+            root_dir, current_dir))
     return num_failed, failed_commands

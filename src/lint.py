@@ -6,8 +6,8 @@ from utils import exec_on_files, pasre_ignore_dirs, print_exec_info
 
 
 def lint_code(args):
-    assert args.input_path.exists(), 'Path {} does not exist.'
-    root_dir = args.input_path.absolute()
+    assert args.project_root_dir.exists(), 'Path {} does not exist.'
+    root_dir = args.project_root_dir.absolute()
     if args.verbose:
         print('root_dir:', root_dir)
     if args.ignore_dirs:
@@ -69,11 +69,12 @@ def parse_command_line(argv):
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     required_args = parser.add_argument_group('required arguments')
-    required_args.add_argument('-i',
-                               '--input-path',
-                               required=True,
-                               type=pathlib.Path,
-                               help='Path to your code repository folder')
+    required_args.add_argument(
+        '-p',
+        '--project-root-dir',
+        required=True,
+        type=pathlib.Path,
+        help='Path to your project root directory folder.')
 
     optional_args = parser.add_argument_group('optional arguments')
 
