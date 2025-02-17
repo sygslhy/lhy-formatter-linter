@@ -1,12 +1,10 @@
 import argparse
 import pathlib
 import sys
-
+import os
 from format import format_code
 
 from lint import lint_code
-
-
 def parse_command_line(argv):
     parser = argparse.ArgumentParser(
         description='code formatter and linter.',
