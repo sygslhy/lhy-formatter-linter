@@ -26,9 +26,7 @@ def print_exec_info(exec, num_failed, failed_commands):
 
 
 def pasre_ignore_dirs(ignore_dirs, root_dir):
-    ign_dirs = [
-        pathlib.Path(root_dir, ign_dir) for ign_dir in DEFAULT_IGNORE_DIRS
-    ]
+    ign_dirs = []
     if ignore_dirs:
         for ign_dir in ignore_dirs:
             abs_ign_dir = pathlib.Path(root_dir, ign_dir)
@@ -38,6 +36,34 @@ def pasre_ignore_dirs(ignore_dirs, root_dir):
                 print('Warning: ignore dir {} is not valid.'.format(
                     str(abs_ign_dir)))
     return ign_dirs
+
+
+def read_ignore_paths(file_path, root_dir):
+    """
+    Reads a text file where each line corresponds to a folder path.
+    Returns a list of absolute directories to ignore.
+
+    Args:
+        file_path (pathlib.Path): Path to the text file containing
+        folder paths.
+        root_dir (pathlib.Path): Root directory to resolve relative paths.
+
+    Returns:
+        list: List of absolute directories to ignore.
+    """
+    try:
+        with open(file_path, 'r') as file:
+            # Read all lines in the file and strip leading/trailing whitespaces
+            parsed_paths = [line.strip() for line in file.readlines()]
+            parsed_paths = [path for path in parsed_paths if path != '']
+            # Resolve relative paths to absolute paths using the root directory
+            ignore_paths = [
+                pathlib.Path(root_dir, path) for path in parsed_paths
+            ]
+            return ignore_paths
+    except FileNotFoundError:
+        print(f"File not found: {file_path}")
+        return []
 
 
 def get_subfolders_recursive(path):

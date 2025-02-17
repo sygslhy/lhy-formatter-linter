@@ -2,7 +2,8 @@ import argparse
 import pathlib
 import sys
 
-from utils import exec_on_files, pasre_ignore_dirs, print_exec_info
+from utils import exec_on_files, pasre_ignore_dirs, print_exec_info, read_ignore_paths
+from utils import DEFAULT_IGNORE_DIRS
 
 
 def lint_code(args):
@@ -10,12 +11,23 @@ def lint_code(args):
     root_dir = args.project_root_dir.absolute()
     if args.verbose:
         print('root_dir:', root_dir)
+
+    ignore_dirs_list = [
+        pathlib.Path(root_dir, ign_dir) for ign_dir in DEFAULT_IGNORE_DIRS
+    ]
     if args.ignore_dirs:
         assert isinstance(args.ignore_dirs,
                           list), 'invalid param --ignore-dirs: {}'.format(
                               args.ignore_dirs)
+        ignore_dirs = pasre_ignore_dirs(args.ignore_dirs, root_dir)
+        ignore_dirs_list += ignore_dirs
 
-    ignore_dirs_list = pasre_ignore_dirs(args.ignore_dirs, root_dir)
+    if args.ignore_file:
+        assert args.ignore_file.exists(
+        ), '--ignore-file: {} does not exist'.format(args.ignore_file)
+        ignore_dirs_from_file = read_ignore_paths(args.ignore_file, root_dir)
+        ignore_dirs_list += ignore_dirs_from_file
+
     if args.verbose:
         print('ignore dirs: ', ignore_dirs_list)
 
@@ -84,10 +96,27 @@ def parse_command_line(argv):
                                nargs="+",
                                default=['cxx', 'python', 'cmake'],
                                help='Which languages to lint')
-    optional_args.add_argument('--ignore-dirs',
-                               nargs="+",
-                               type=pathlib.Path,
-                               help='Path of directories where linter ignores')
+    optional_args.add_argument(
+        '-id',
+        '--ignore-dirs',
+        nargs="+",
+        type=pathlib.Path,
+        help='Path of directories where formater ignores')
+
+    optional_args.add_argument(
+        '-if',
+        '--ignore-file',
+        type=pathlib.Path,
+        help='Path of directories where formater ignores')
+
+    optional_args.add_argument('-v',
+                               '--verbose',
+                               action='store_true',
+                               help='enable verbose mode')
+    optional_args.add_argument('-d',
+                               '--dry-run',
+                               action='store_true',
+                               help='enable dry-run mode')
 
     cmake_args = parser.add_argument_group('optional cmake lint arguments')
     cmake_args.add_argument('--cmake-lint-config',
@@ -101,15 +130,6 @@ def parse_command_line(argv):
     python_args.add_argument('--flake8-config',
                              type=pathlib.Path,
                              help='Path of flake8 custom config file')
-
-    optional_args.add_argument('-v',
-                               '--verbose',
-                               action='store_true',
-                               help='enable verbose mode')
-    optional_args.add_argument('-d',
-                               '--dry-run',
-                               action='store_true',
-                               help='enable dry-run mode')
 
     return parser.parse_args(argv)
 

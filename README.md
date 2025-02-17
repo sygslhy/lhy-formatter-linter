@@ -1,13 +1,13 @@
-# Code formatter and linter
+# Generic formatter and linter
 
-This package provides the formatter and linter for cmake, C++ and python, ideal tool for image researcher and developer.
+This package provides the formatter and linter for cmake, C++ and python, ideal for mixed C++ and python developer.
 
 # Getting Started
 
 ## Installation
 
 ```sh
-pip install code-formatter-linter
+pip install gen-formatter-linter
 ```
 
 ## Usage
