@@ -7,7 +7,7 @@ This package provides the formatter and linter for cmake, C++ and python, ideal 
 ## Installation
 
 ```sh
-pip install gen-formatter-linter
+pip install lhy-formatter-linter
 ```
 
 ## Usage
@@ -19,47 +19,64 @@ Formatter or linter will check in your project directory recursively, format or 
 | linter           | cmake-lint   | clang-tidy      | flake8 | 
 
 ```sh
-code-format -p <project-root-dir> 
+lhy -h
+usage: lhy [-h] {format,lint} ...
+
+code formatter and linter.
+
+positional arguments:
+  {format,lint}
+    format       Format code
+    lint         Lint code
 ```
+
+### format code in yout project
+
 ```sh
-code-lint -p <project-root-dir> 
+lhy format -p <project-root-dir> 
+```
+### lint code in yout project
+
+```sh
+lhy lint -p <project-root-dir> 
 ```
 
 ## Optional arguments
 
-
+### Choose languages 
 User can choose to format or lint one or two languages by using `-l` or `--language`
 
 ```sh
-code-format -p <project-root-dir> -l cmake
+lhy format -p <project-root-dir> -l cmake
 ```
 
 ```sh
-code-lint -p <project-root-dir> -l python
+lhy lint -p <project-root-dir> -l python
 ```
 
 ```sh
-code-lint -p <project-root-dir> -l cmake cxx
+lhy lint -p <project-root-dir> -l cmake cxx
 ```
 
+### Ignore no-source directories
 In project, there must be some sub directories for sure don't contain the source code.
 
-`code-formatter-linter` by default ignore the follow directories at the first level under project root dir:
+`lhy-formatter-linter` by default ignore the follow directories at the first level under project root dir:
 
 `.git, build, .vscode, .cache, .pytest_cache`
 
-User can add your custom sub directories by optional argument `--ignore-dirs`, 
+User can add your custom sub directories by optional argument `-id` or `--ignore-dirs`, 
 The format of sub directories to ingore could be absolute path or relative path to project root dir
 
 ```sh
-code-format -p <project-root-dir> --ignore-dirs .github py_venv <project_root_dir>/docs
+lhy format -p <project-root-dir> --ignore-dirs .github py_venv <project_root_dir>/docs
 ```
 
 ```sh
-code-lint -p <project-root-dir> --ignore-dirs <project_root_dir>/.github  <project_root_dir>/py_venv docs
+lhy lint -p <project-root-dir> --ignore-dirs <project_root_dir>/.github  <project_root_dir>/py_venv docs
 ```
 
-[TODO]Or user can specify a txt file which contains the directories to ignore in content, one line for one directoy.
+Or user can specify a txt file which contains the directories to ignore in content, one line for one directoy.
 
 an example named `dirs-to-ignore.txt` text file content
 ```
@@ -67,11 +84,13 @@ an example named `dirs-to-ignore.txt` text file content
 <project_root_dir>/py_venv
 docs
 ```
-Then use optional argument `--ignore-file` to parse those directories to ignore to formatter or linter.
+Then use optional argument `-ig`, `--ignore-file` to parse those directories to ignore to formatter or linter.
 
 ```sh
-code-format -p <project-root-dir> --ignore-file dirs-to-ignore.txt
+lhy format -p <project-root-dir> --ignore-file dirs-to-ignore.txt
 ```
+
+### Format or lint config files
 
 formatter or linter will use by default the format or lint config file under project root dir.
 
@@ -107,6 +126,15 @@ optional python format arguments:
                         Path of yapf custom config file (default: None)
 ```
 
+```sh
+
+lhy format -p <project-root-dir> \
+    --cmake-format-config <cmake-format-config-absolute-file-path> \
+    --clang-format-config <clang-format-config-absolute-file-path> \
+    --yapf-config <yapf-config-absolute-file-path>
+```
+
+
 ### linter config file path arguments
 ```sh
 optional cmake lint arguments:
@@ -121,6 +149,36 @@ optional python format arguments:
   --flake8-config FLAKE8_CONFIG
                         Path of flake8 custom config file (default: None)
 ```
+
+```sh
+
+lhy format -p <project-root-dir> \
+    --cmake-lint-config <cmake-lint-config-absolute-file-path> \
+    --clang-tidy-config <clang-tidy-config-absolute-file-path> \
+    --flake8-config <flake8-config-absolute-file-path>
+```
+
+## Integrate to CI
+
+This package can be used in CI pipeline, to guarantee all the code on remote is in norm.
+
+
+### jenkins example.
+```jenkins
+
+stage('Check code norm') {
+    agent any
+    steps {
+        dir('script') {
+            sh 'lhy lint -p <project_root_dir>'
+            sh 'lhy format -p <project_root_dir>'
+        }
+        sh 'git diff --exit-code'
+    }
+}
+
+```
+
 
 
 # License
