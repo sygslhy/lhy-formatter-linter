@@ -1,0 +1,179 @@
+name: Build and test wheels then upload to PyPI
+
+on: [push, pull_request]
+
+jobs:
+  checkout-code:
+    name: Checkout source code
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout source code
+      uses: actions/checkout@v4
+
+    - name: Upload the source code to artifact for build in matrix later
+      uses: actions/upload-artifact@v4
+      with:
+        name: source
+        path: .
+    
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Use format and lint to check code norm
+      run: |
+          python3 -m pip install --upgrade pip
+          pip install yapf flake8 flake8-import-order
+          python3 src/script.py format -l python -p .
+          python3 src/script.py lint -l python -p .
+          git diff --exit-code
+
+  build_and_test_sdist:
+    needs: checkout-code
+    name: Build and test source distribution
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Download source code artifact
+        uses: actions/download-artifact@v4
+        with:
+          pattern: source
+          path: .
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build sdist
+        run: |
+          cd source &&
+          python3 -m pip install build &&
+          python3 -m build --sdist
+
+      - name: Installation from sdist
+        run: |
+          cd source 
+          pip install dist/*tar.gz
+
+      - name: Test installed package
+        run: |
+          lhy format -h
+          lhy lint -h
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cibw-sdist
+          path: source/dist/*.tar.gz
+
+  build_and_test_wheel:
+    needs: checkout-code
+    name: wheel ${{ matrix.os }} and ${{matrix.python-version}}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-22.04]
+        python-version: ["3.12"]
+
+    steps:
+      - name: Download source code artifact
+        uses: actions/download-artifact@v4
+        with:
+          pattern: source
+          path: .
+
+      - name: Build wheel
+        run: |
+          cd source 
+          python3 -m pip install build 
+          python3 -m build --wheel
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cibw-wheels-${{ matrix.os }}-${{ matrix.python-version }}
+          path: ./source/dist/*.whl
+
+      - name: Installation from wheel
+        run: |
+          cd source 
+          pip install dist/*.whl 
+  
+      - name: Test installed package
+        run: |
+          lhy format -h 
+          lhy lint -h
+
+  publish-to-test-pypi:
+    if: contains(github.event.head_commit.message,'[Release]')  # only publish to Test PyPI when [Release] in commit
+    needs: [build_and_test_sdist, build_and_test_wheel]
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/project/display-image
+    permissions:
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download all the dists
+      uses: actions/download-artifact@v4
+      with:
+        pattern: cibw-*
+        path: dist
+        merge-multiple: true
+
+    - name: Publish distribution to TestPyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        repository-url: https://test.pypi.org/legacy/
+        skip-existing: true
+
+  test-download-package:
+    if: contains(github.event.head_commit.message,'[Release]')  # only publish to Test PyPI when [Release] in commit
+    needs:
+    - publish-to-test-pypi
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-22.04, macos-15]
+        python-version: ["3.9", "3.10", "3.11","3.12", "3.13"]
+    steps:
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install display-image from test pypi and run test
+      run: |
+        python -c "import sys; print(sys.version)"
+        
+        python -m pip install --upgrade pip
+        pip install -i https://test.pypi.org/simple/ lhy-formatter-linter
+        lhy format -h 
+        lhy lint -h
+
+  publish-to-pypi:
+    if: contains(github.event.head_commit.message,'[Release]')  # only publish to PyPI when [Release] in commit message
+    needs:
+    - test-download-package
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/display-image/
+
+    permissions:
+      id-token: write  # IMPORTANT: mandatory for trusted publishing
+
+    steps:
+    - name: Download all the dists
+      uses: actions/download-artifact@v4
+      with:
+        pattern: cibw-*
+        path: dist
+        merge-multiple: true
+
+    - name: Publish distribution to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_API_TOKEN }}
+        verbose: true
+
+
