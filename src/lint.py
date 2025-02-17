@@ -43,6 +43,8 @@ def lint_code(args):
             verbose=args.verbose,
             dry_run=args.dry_run)
         print_exec_info('cmake-lint', num_failed, failed_commands)
+        if num_failed > 0:
+            raise Exception('Cmake lint check not passed')
 
     if 'cxx' in args.languages:
         clang_tidy_args = [
@@ -58,6 +60,8 @@ def lint_code(args):
             verbose=args.verbose,
             dry_run=args.dry_run)
         print_exec_info('clang-tidy', num_failed, failed_commands)
+        if num_failed > 0:
+            raise Exception('C++ clang-tidy check not passed')
 
     if 'python' in args.languages:
         flake8_args = [
@@ -72,3 +76,5 @@ def lint_code(args):
                                                     verbose=args.verbose,
                                                     dry_run=args.dry_run)
         print_exec_info('flake8', num_failed, failed_commands)
+        if num_failed > 0:
+            raise Exception('flake8 check not passed')
