@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "lhy-formatter-linter"
 version = "0.0.4"
 dependencies = [
-  "cmake-format", "clang-format", "clang-tidy", "yapf", "flake8", "flake8-import-order"
+  "cmake-format", "clang-format", "clang-tidy", "flake8", "flake8-import-order"
 ]
 authors = [{name = "Yuan SUN", email = "sunyuan860510@gmail.com"}]
 maintainers = [{name = "Yuan SUN", email = "sunyuan860510@gmail.com"}]
@@ -14,7 +14,7 @@ description = "This package provides the formatter and linter for cmake, C++ and
 requires-python = ">=3.9"
 readme = {file = "README.md", content-type = "text/markdown"}
 license = {text = "MIT License"}
-keywords = ["cmake-format", "lint", "clang-format", "clang-tidy", "flake8", "code format", "code lint", "yapf", "lhy"]
+keywords = ["cmake-format", "lint", "clang-format", "clang-tidy", "flake8", "code format", "code lint", "lhy"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Programming Language :: Python :: 3",
