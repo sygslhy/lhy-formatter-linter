@@ -4,9 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "lhy-formatter-linter"
-version = "0.0.1"
+version = "0.0.3"
 dependencies = [
-  "cmake-format>=0.6.13", "clang-format>=13.0.1", "clang-tidy>=13.0.1.1", "yapf>=0.43.0", "flake8>=7.1.1", "flake8-import-order>=0.18.2"
+  "cmake-format", "clang-format>=13.0.1", "clang-tidy>=13.0.1.1", "yapf", "flake8>=7.1.1", "flake8-import-order>=0.18.2"
 ]
 authors = [{name = "Yuan SUN", email = "sunyuan860510@gmail.com"}]
 maintainers = [{name = "Yuan SUN", email = "sunyuan860510@gmail.com"}]
@@ -20,9 +20,7 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
     "License :: OSI Approved :: MIT License",
-    "Operating System :: Microsoft :: Windows",
-    "Operating System :: POSIX :: Linux",
-    "Operating System :: MacOS",
+    "Operating System :: OS Independent",
     "Topic :: Software Development",
     "Intended Audience :: Developers"
 ]
