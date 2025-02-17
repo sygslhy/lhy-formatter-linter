@@ -106,7 +106,7 @@ jobs:
     needs: [build_and_test_sdist, build_and_test_wheel]
     environment:
       name: testpypi
-      url: https://test.pypi.org/project/display-image
+      url: https://test.pypi.org/project/lhy-formatter-linter
     permissions:
       id-token: write
     runs-on: ubuntu-latest
@@ -156,7 +156,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/project/display-image/
+      url: https://pypi.org/project/lhy-formatter-linter/
 
     permissions:
       id-token: write  # IMPORTANT: mandatory for trusted publishing
