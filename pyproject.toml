@@ -4,9 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "lhy-formatter-linter"
-version = "0.0.6"
+version = "0.0.7"
 dependencies = [
-  "cmake-format", "clang-format", "clang-tidy"
+  "cmake-format", "clang-format", "clang-tidy", "flake8"
 ]
 authors = [{name = "Yuan SUN", email = "sunyuan860510@gmail.com"}]
 maintainers = [{name = "Yuan SUN", email = "sunyuan860510@gmail.com"}]
