@@ -133,7 +133,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-latest, ubuntu-22.04, macos-15]
-        python-version: ["3.11","3.12", "3.13"]
+        python-version: ["3.9", "3.10", "3.11","3.12", "3.13"]
     steps:
 
     - uses: actions/setup-python@v5
@@ -145,7 +145,8 @@ jobs:
         python -c "import sys; print(sys.version)"
         python -m pip install --upgrade pip
         pip --version
-        pip install -i https://test.pypi.org/simple/ lhy-formatter-linter==0.0.7
+        pip install cmake-format clang-format clang-tidy yapf flake8 flake8-import-order
+        pip install -i https://test.pypi.org/simple/ --upgrade lhy-formatter-linter
         lhy format -h 
         lhy lint -h
 

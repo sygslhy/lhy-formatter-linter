@@ -1,6 +1,6 @@
 # Generic formatter and linter
 
-This package provides the formatter and linter for cmake, C++ and python, ideal for mixed C++ and python developer.
+This package provides formatters and linters for CMake, C++, and Python, making it ideal for developers who work with both C++ and Python.
 
 # Getting Started
 
@@ -12,7 +12,8 @@ pip install lhy-formatter-linter
 
 ## Usage
 
-Formatter or linter will check in your project directory recursively, format or lint all the cmake, C++ python code, by the third-party tools: 
+The formatter or linter will recursively scan your project directory, formatting or linting all CMake, C++, and Python code using third-party tools.
+
 | third-party tool | cmake        | C++             | python | 
 |------------------|--------------|-----------------|--------|
 | formatter        | cmake-format | clang-format    | yapf   | 
@@ -44,7 +45,9 @@ lhy lint -p <project-root-dir>
 ## Optional arguments
 
 ### Choose languages 
-User can choose to format or lint one or two languages by using `-l` or `--language`
+
+Users can choose to format or lint one or more languages by using the `-l` or `--language` option.
+
 
 ```sh
 lhy format -p <project-root-dir> -l cmake
@@ -59,14 +62,19 @@ lhy lint -p <project-root-dir> -l cmake cxx
 ```
 
 ### Ignore no-source directories
-In project, there must be some sub directories for sure don't contain the source code.
 
-`lhy-formatter-linter` by default ignore the follow directories at the first level under project root dir:
+In a project, there are typically subdirectories that do not contain source code.
 
-`.git, build, .vscode, .cache, .pytest_cache`
+By default, `lhy-formatter-linter` ignores the following directories at the top level under the project root directory:
 
-User can add your custom sub directories by optional argument `-id` or `--ignore-dirs`, 
-The format of sub directories to ingore could be absolute path or relative path to project root dir
+* `.git`
+* `build`
+* `.vscode`
+* `.cache`
+* `.pytest_cache`
+
+Users can add custom subdirectories to ignore using the optional argument `-id` or `--ignore-dirs`. The format of the subdirectories to ignore can be either an absolute path or a relative path to the project root directory.
+
 
 ```sh
 lhy format -p <project-root-dir> --ignore-dirs .github py_venv <project_root_dir>/docs
@@ -75,16 +83,16 @@ lhy format -p <project-root-dir> --ignore-dirs .github py_venv <project_root_dir
 ```sh
 lhy lint -p <project-root-dir> --ignore-dirs <project_root_dir>/.github  <project_root_dir>/py_venv docs
 ```
+Alternatively, users can specify a text file that contains the directories to ignore, with one directory per line.
 
-Or user can specify a txt file which contains the directories to ignore in content, one line for one directoy.
+For example, a file named `dirs-to-ignore.txt` could have the following content:
 
-an example named `dirs-to-ignore.txt` text file content
 ```
 <project_root_dir>/.github
 <project_root_dir>/py_venv
 docs
 ```
-Then use optional argument `-ig`, `--ignore-file` to parse those directories to ignore to formatter or linter.
+Then, use the optional argument `-ig` or `--ignore-file` to specify the file containing the directories to ignore, which will be parsed by the formatter or linter.
 
 ```sh
 lhy format -p <project-root-dir> --ignore-file dirs-to-ignore.txt
@@ -92,9 +100,9 @@ lhy format -p <project-root-dir> --ignore-file dirs-to-ignore.txt
 
 ### Format or lint config files
 
-formatter or linter will use by default the format or lint config file under project root dir.
+By default, the formatter or linter will use the format or lint configuration files located directly under the project root directory.
 
-User can put format and lint config files directly under project root dir to have you own custom formatting or linting rules.
+Users can place their own custom format and lint configuration files directly under the project root directory to override the default settings and apply their own custom formatting or linting rules.
 
 
 ```sh
@@ -109,9 +117,9 @@ User can put format and lint config files directly under project root dir to hav
     │   └── .style.yapf
 
 ```
-Or these optional arguments below can specify the config files path:
+Alternatively, users can specify the configuration file paths using the following optional arguments:
 
-### formatter config file path arguments
+#### formatter config file path arguments
 ```sh
 optional cmake format arguments:
   --cmake-format-config CMAKE_FORMAT_CONFIG
@@ -135,7 +143,7 @@ lhy format -p <project-root-dir> \
 ```
 
 
-### linter config file path arguments
+#### linter config file path arguments
 ```sh
 optional cmake lint arguments:
   --cmake-lint-config CMAKE_LINT_CONFIG
@@ -160,7 +168,7 @@ lhy format -p <project-root-dir> \
 
 ## Integrate to CI
 
-This package can be used in CI pipeline, to guarantee all the code on remote is in norm.
+This package can be integrated into a Continuous Integration (CI) pipeline to ensure that all code on the remote repository conforms to the specified norms and standards.
 
 
 ### jenkins example.
@@ -183,4 +191,4 @@ stage('Check code norm') {
 
 # License
 
-This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/sygslhy/coding_tools/blob/main/LICENSE.md) file for details.
+This project is licensed under the MIT License. For more information, please refer to the [LICENSE.md](https://github.com/sygslhy/coding_tools/blob/main/LICENSE.md) file.
