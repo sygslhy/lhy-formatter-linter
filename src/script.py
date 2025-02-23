@@ -3,7 +3,6 @@ import pathlib
 import sys
 
 from format import format_code
-
 from lint import lint_code
 
 
@@ -71,6 +70,9 @@ def parse_command_line(argv):
     python_args.add_argument('--yapf-config',
                              type=pathlib.Path,
                              help='Path of yapf custom config file')
+    python_args.add_argument('--isort-config',
+                             type=pathlib.Path,
+                             help='Path of isort custom config file')
 
     # Create a subparser for the lint function
     lint_parser = subparsers.add_parser('lint', help='Lint code')

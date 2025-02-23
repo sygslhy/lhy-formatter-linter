@@ -1,8 +1,7 @@
 import pathlib
 
-from utils import DEFAULT_IGNORE_DIRS
-from utils import (exec_on_files, pasre_ignore_dirs, print_exec_info,
-                   read_ignore_paths)
+from utils import (DEFAULT_IGNORE_DIRS, exec_on_files, pasre_ignore_dirs,
+                   print_exec_info, read_ignore_paths)
 
 
 def lint_code(args):

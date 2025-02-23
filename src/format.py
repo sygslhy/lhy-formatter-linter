@@ -1,8 +1,7 @@
 import pathlib
 
-from utils import DEFAULT_IGNORE_DIRS
-from utils import (exec_on_files, pasre_ignore_dirs, print_exec_info,
-                   read_ignore_paths)
+from utils import (DEFAULT_IGNORE_DIRS, exec_on_files, pasre_ignore_dirs,
+                   print_exec_info, read_ignore_paths)
 
 
 def format_code(args):
@@ -71,3 +70,16 @@ def format_code(args):
                                                     verbose=args.verbose,
                                                     dry_run=args.dry_run)
         print_exec_info('yapf', num_failed, failed_commands)
+
+        isort_args = [
+            '--settings-path {}'.format(
+                str(pathlib.Path(root_dir, args.isort_config)))
+        ] if args.isort_config else []
+
+        num_failed, failed_commands = exec_on_files(['isort'],
+                                                    root_dir, ['*.py'],
+                                                    ignore_dirs_list,
+                                                    isort_args,
+                                                    verbose=args.verbose,
+                                                    dry_run=args.dry_run)
+        print_exec_info('isort', num_failed, failed_commands)

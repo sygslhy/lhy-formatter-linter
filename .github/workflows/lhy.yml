@@ -23,7 +23,7 @@ jobs:
     - name: Use format and lint to check code norm
       run: |
           python3 -m pip install --upgrade pip
-          pip install yapf flake8 flake8-import-order
+          pip install yapf flake8 isort
           python3 src/script.py format -l python -p .
           python3 src/script.py lint -l python -p .
           git diff --exit-code
@@ -145,7 +145,7 @@ jobs:
         python -c "import sys; print(sys.version)"
         python -m pip install --upgrade pip
         pip --version
-        pip install cmake-format clang-format clang-tidy yapf flake8 flake8-import-order
+        pip install cmake-format clang-format clang-tidy yapf flake8 isort
         pip install -i https://test.pypi.org/simple/ --upgrade lhy-formatter-linter
         lhy format -h 
         lhy lint -h
