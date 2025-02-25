@@ -14,10 +14,10 @@ pip install lhy-formatter-linter
 
 The formatter or linter will recursively scan your project directory, formatting or linting all CMake, C++, and Python code using third-party tools.
 
-| third-party tool | cmake        | C++             | python | 
-|------------------|--------------|-----------------|--------|
-| formatter        | cmake-format | clang-format    | yapf   | 
-| linter           | cmake-lint   | clang-tidy      | flake8 | 
+| third-party tool | cmake        | C++             | python       | 
+|------------------|--------------|-----------------|--------------|
+| formatter        | cmake-format | clang-format    | yapf, isort  | 
+| linter           | cmake-lint   | clang-tidy      | flake8       | 
 
 ```sh
 lhy -h
@@ -114,7 +114,8 @@ Users can place their own custom format and lint configuration files directly un
     │   ├── .clang-tidy
     │   ├── .cmake-format
     │   ├── .flake8
-    │   └── .style.yapf
+    │   ├── .style.yapf
+    │   └── .isort.cfg
 
 ```
 Alternatively, users can specify the configuration file paths using the following optional arguments:
@@ -132,6 +133,9 @@ optional c++ format arguments:
 optional python format arguments:
   --yapf-config YAPF_CONFIG
                         Path of yapf custom config file (default: None)
+  --isort-config ISORT_CONFIG
+                        Path of isort custom config file
+
 ```
 
 ```sh
@@ -139,9 +143,9 @@ optional python format arguments:
 lhy format -p <project-root-dir> \
     --cmake-format-config <cmake-format-config-absolute-file-path> \
     --clang-format-config <clang-format-config-absolute-file-path> \
-    --yapf-config <yapf-config-absolute-file-path>
+    --yapf-config <yapf-config-absolute-file-path> \
+    --isort-config <isort-config-absolute-file-path>
 ```
-
 
 #### linter config file path arguments
 ```sh
@@ -174,20 +178,16 @@ This package can be integrated into a Continuous Integration (CI) pipeline to en
 ### jenkins example.
 ```jenkins
 
-stage('Check code norm') {
+stage('Check code') {
     agent any
     steps {
-        dir('script') {
-            sh 'lhy lint -p <project_root_dir>'
-            sh 'lhy format -p <project_root_dir>'
-        }
+        sh 'lhy lint -p <project_root_dir>'
+        sh 'lhy format -p <project_root_dir>'
         sh 'git diff --exit-code'
     }
 }
 
 ```
-
-
 
 # License
 
